@@ -1,0 +1,35 @@
+spring:
+  mail:
+    host: ${EMAIL_HOST:smtp.gmail.com}
+    port: 587
+    username: ${EMAIL}
+    password: ${EMAIL_KEY}
+    properties:
+      mail: 
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+variables:
+  emailto: ${EMAIL_TO}
+
+next:
+  lambda:
+    lambda1arn: "arn:aws:lambda:us-east-2:339712758982:function:youtube-service-1"
+    lambda2arn: "arn:aws:lambda:us-east-2:339712758982:function:youtube-service-2"
+    lambda3arn: "arn:aws:lambda:us-east-2:339712758982:function:youtube-service-3"
+    ecstaskarn: "arn:aws:ecs:us-east-2:339712758982:task-definition/youtube-service-4:2"
+    lambda5arn: "arn:aws:lambda:us-east-2:339712758982:function:youtube-service-5"
+    lambda6arn: "arn:aws:lambda:us-east-2:339712758982:function:youtube-service-6"
+ecs:
+  cluster:
+    name: "youtube-cluster" # Replace with your ECS cluster name
+  task:
+    executionRoleArn: "arn:aws:iam::339712758982:role/ecs-task-execution-role"
+
+aws:
+  s3:
+    bucket:
+      logging: ${LOGGING_BUCKET_NAME}
+    key:
+      logging: ${LOGGING_BUCKET_KEY}
