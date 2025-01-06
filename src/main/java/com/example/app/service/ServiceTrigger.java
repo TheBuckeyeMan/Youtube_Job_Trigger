@@ -11,30 +11,12 @@ import org.springframework.stereotype.Service;
 public class ServiceTrigger {
     private static final Logger log = LoggerFactory.getLogger(ServiceTrigger.class);
     private LastLog lastLog;
+    private LastService lastService;
+    private NextService nextService;
+    private TriggerService triggerService;
 
     @Value("${spring.profiles.active}")
     private String environment;
-
-    @Value("${next.lambda.lambda1arn}")
-    private String lambda1arn;
-
-    @Value("${next.lambda.lambda2arn}")
-    private String lambda2arn;
-
-    @Value("${next.lambda.lambda3arn}")
-    private String lambda3arn;
-
-    @Value("${next.lambda.ecstaskarn}")
-    private String ecstaskarn;
-
-    @Value("${next.lambda.lambda5arn}")
-    private String lambda5arn;
-
-    @Value("${next.lambda.lambda6arn}")
-    private String lambda6arn;
-
-    @Value("${ecs.cluster.name}")
-    private String ecsClusterName;
 
     @Value("${aws.s3.bucket.logging}")
     private String loggingBucket;
@@ -42,8 +24,11 @@ public class ServiceTrigger {
     @Value("${aws.s3.key.logging}")
     private String loggingBucketKey;
 
-    public ServiceTrigger(LastLog lastLog){
+    public ServiceTrigger(LastLog lastLog, LastService lastService, NextService nextService, TriggerService triggerService){
         this.lastLog = lastLog;
+        this.lastService = lastService;
+        this.nextService = nextService;
+        this.triggerService = triggerService;
     }
 
     public void TriggerService(){
@@ -53,19 +38,30 @@ public class ServiceTrigger {
         try{
 
             //Get the most recent
-            String LastLog = lastLog.getLastLog(loggingBucket, loggingBucketKey);
-            log.info("The Last Log was: " + LastLog);
+            String lastLogName = lastLog.getLastLog(loggingBucket, loggingBucketKey);
+            log.info("The Last Log was: " + lastLogName);
 
             //Get the Last Service
+            String lastServiceName = lastService.lastService(lastLogName);
+
+            //Get the Next Service ARN
+            String nextServiceARN = nextService.getNextServiceARN(lastServiceName);
+
+            //Check if Service is Finished
+            if (nextServiceARN == "Finished"){
+                log.info("All Services has successfully triggered! Youtube Video Published!");
+            } else {
+                //Trigger Lambda or ECS
+                triggerService.TriggerNextService(nextServiceARN);
+                log.info("Final: The Lambda has finished and the next service: " + " has been tiggered");
+            }
 
 
 
-
-
-            log.info("Final: The Lambda has finished and the next service: " + " has been tiggered");
-
+            log.info("Lambda Exiting");
         } catch (Exception e){
             log.error("Error triggering Service");
+            //TODO Add in email Handiling
         }
     }
 }
