@@ -39,7 +39,6 @@ public class TriggerService {
     public void TriggerNextService(String nextServiceARN){
         log.info("Attempting to Trigger the next Service Programatically...");
         try{
-
             //Validate ARN
             String validatedNextServiceArn = this.validateARN(nextServiceARN);
 
@@ -143,7 +142,7 @@ public class TriggerService {
         try{
             if (nextServiceARN == null){
                 log.error("The Next Service ARN: " + nextServiceARN + " is null. Error getting ARN");
-                return null;
+                throw new IllegalArgumentException("The value of nextServiceARN is null. TriggerService.java Line 145");
             } else {
                 return nextServiceARN;
             }

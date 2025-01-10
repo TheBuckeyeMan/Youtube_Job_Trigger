@@ -33,30 +33,22 @@ public class NextService {
 
     public String getNextServiceARN(String lastService){
         log.info("Attempting to determing the Next Service ARN...");
-        try{
 
-            //Determing the next service
-            String nextService = this.getNextService(lastService);
+        //Determing the next service
+        String nextService = this.getNextService(lastService);
 
-            //Get the next service ARN
-            String nextServiceARN = this.getARN(nextService);
+        //Get the next service ARN
+        String nextServiceARN = this.getARN(nextService);
 
-            //Log NExt Service ARN
-            log.info("The ARN of the Next Service is: " + nextServiceARN);
-            
-            //Return the ARN of the next service
-            return nextServiceARN;
-
-        } catch (Exception e){
-            log.error("Error occured while trying to determing the Next Service from the Last Service", e.getMessage(),e);
-            //TODO Add in email error tracking here
-            return null;
-        }
+        //Log NExt Service ARN
+        log.info("The ARN of the Next Service is: " + nextServiceARN);
+        
+        //Return the ARN of the next service
+        return nextServiceARN;
     }
 
     private String getNextService(String lastService){
         log.info("Attempting to determing the next service from the prior service: " + lastService);
-        try{
             switch(lastService) {
                 case "youtube-service-1,":
                     return "youtube-service-2";
@@ -70,18 +62,12 @@ public class NextService {
                     return "Finished";
                 default:
                     log.warn("lastService was not recognized. Check formatting");
-                    return null;
+                    throw new IllegalArgumentException("Unable to determine the next service for: lastService variable on getNextService method NextService.java line 73");
             }
-        } catch (Exception e) {
-            log.error("Error while trying to get the next service form the current one", e.getMessage(), e);
-            //TODO Add in email Error Handling
-            return null;
-        }
     }
 
     private String getARN(String nextService){
         log.info("Attempting to determin the ARN for service: " + nextService);
-        try{
             switch(nextService) {
                 case "youtube-service-1":
                     return lambda1arn;
@@ -94,15 +80,10 @@ public class NextService {
                 case "youtube-service-5":
                     return lambda5arn;
                 case "Finished":
-                    return "Finished";
+                    return null;
                 default:
                     log.warn("Error getting ARN of Next Lambda. Check formatting");
-                    return null;
+                    throw new IllegalArgumentException("Unable to determine the ARN for: nextService variable on getARN method NextService.java line 100");
                 }
-        } catch (Exception e){
-            log.error("Error occured while trying to get lambda ARN for service: " + nextService, e.getMessage(),e);
-            //TODO Add in custom email handling
-            return null;
-        }
     }
 }

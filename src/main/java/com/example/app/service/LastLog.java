@@ -5,9 +5,13 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import com.example.app.exception.LogFileNotFoundException;
+
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
@@ -17,9 +21,11 @@ import software.amazon.awssdk.services.s3.S3Client;
 public class LastLog {
     private static final Logger log = LoggerFactory.getLogger(LastLog.class);
     private S3Client s3Client;
+    private EmailOnError emailOnError;
 
-    public LastLog(S3Client s3Client){
+    public LastLog(S3Client s3Client, EmailOnError emailOnError){
         this.s3Client = s3Client;
+        this.emailOnError = emailOnError;
     }
 
     public String getLastLog(String bucketName, String logFileKey){
@@ -44,9 +50,8 @@ public class LastLog {
             //Return only the Last Service
             return lastServiceLog(youtubeLogs);
 
-        } catch (Exception e){
-            log.error("Unable to Read Contents from the Log Bucket to get prior jobs. Step 1 in GetLogs.java Line 22.");
-            //TODO Add in Email Handling
+        } catch (LogFileNotFoundException e){
+            log.error("Unable to Read Contents from the Log Bucket to get prior jobs. Step 1 in GetLogs.java Line 22.", e);
             return null;
         }
     }
@@ -56,6 +61,7 @@ public class LastLog {
             if (logs == null || logs.isEmpty()){
                 log.error("The Log file returned null. Able to read contents, But log file is either empty or a problem occured when writing to object");
                 //TODO Add Email On Error
+                throw new IllegalArgumentException();
             } else {
                 log.info("Log File Successfuly Verified and contains Required Logs");
             }

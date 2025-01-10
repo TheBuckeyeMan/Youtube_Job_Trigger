@@ -32,8 +32,8 @@ public class LastService {
         try{
             if (lastLog == null){
                 log.error("Error: The last log is null.");
+                throw new IllegalArgumentException();
                 //TODO Add in Email
-                return false;
             } else if (lastLog.contains("Success")){
                 log.info("Prior Log: " + lastLog + " indicates a success");
                 return true;
